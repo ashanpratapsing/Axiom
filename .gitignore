@@ -1,0 +1,85 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# Logs and debug
+*.log
+logs/
+*.log.*
+
+# Eclipse / STS metadata
+.metadata/
+
+# Node modules
+node_modules/
+
+# Frontend builds
+frontend/dist/
+dist/
+
+# Coverage
+coverage/
+
+# Temporary files
+tmp/
+temp/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid
+*.seed
+
+# Redis / DB dumps
+dump.rdb
+*.sql
+
+# Runtime sandbox artifacts
+sandbox/
+
+.DS_Store
+Thumbs.db
+
+# Compiled files
+*.class
+
+# Temp/debug files
+*_debug.txt
+temp_*
