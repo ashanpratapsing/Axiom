@@ -1,5 +1,6 @@
 package com.student.demo.security;
 
+import org.springframework.context.annotation.Profile;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import java.time.Duration;
 
 @Component
+@Profile("local")
 public class RateLimitInterceptor implements HandlerInterceptor {
 
     private final ProxyManager<byte[]> proxyManager;
@@ -23,7 +25,8 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
         String ip = request.getRemoteAddr();
         String userId = "anonymous";
         if (request.getUserPrincipal() != null) {
