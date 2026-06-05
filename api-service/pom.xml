@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.student.demo</groupId>
@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>api-service</artifactId>
 	<packaging>jar</packaging>
-	
+
 	<dependencies>
 		<!-- Internal module dependency -->
 		<dependency>
@@ -17,7 +17,7 @@
 			<artifactId>core-libs</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<!-- Web, Validation, Actuator -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -31,7 +31,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		
+
 		<!-- Auth (OAuth2 & JWT) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -46,7 +46,7 @@
 			<artifactId>java-jwt</artifactId>
 			<version>4.4.0</version>
 		</dependency>
-		
+
 		<!-- Bucket4j Rate Limiting -->
 		<dependency>
 			<groupId>com.bucket4j</groupId>
@@ -58,7 +58,7 @@
 			<artifactId>bucket4j-redis</artifactId>
 			<version>${bucket4j.version}</version>
 		</dependency>
-		
+
 		<!-- Lombok -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -76,6 +76,12 @@
 			<groupId>net.logstash.logback</groupId>
 			<artifactId>logstash-logback-encoder</artifactId>
 			<version>7.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.5.0</version>
 		</dependency>
 
 		<!-- Testing -->
