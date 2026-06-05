@@ -11,24 +11,24 @@ public class AIReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String bugs;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String optimization;
 
     private String timeComplexity;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String codeSmells;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String refactoredCode;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String unitTests;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String explanation;
 
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -37,7 +37,8 @@ public class AIReport {
     @JoinColumn(name = "code_file_id")
     private CodeFile codeFile;
 
-    public AIReport() {}
+    public AIReport() {
+    }
 
     public Long getId() {
         return id;
