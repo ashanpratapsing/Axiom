@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Profile;
 import java.time.Duration;
 
 @Configuration
+@Profile("local")
 public class RateLimitConfig {
 
     @Value("${spring.data.redis.host:localhost}")
