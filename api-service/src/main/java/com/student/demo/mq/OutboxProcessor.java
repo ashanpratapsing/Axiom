@@ -12,12 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
+import org.springframework.context.annotation.Profile;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@Profile("local")
 public class OutboxProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(OutboxProcessor.class);
@@ -39,7 +40,7 @@ public class OutboxProcessor {
         // Simple distributed lock to ensure only one API node sweeps at a time
         String lockKey = "lock:outbox:sweeper";
         Boolean acquired = redisTemplate.opsForValue().setIfAbsent(lockKey, "LOCKED", 4, TimeUnit.SECONDS);
-        
+
         if (Boolean.FALSE.equals(acquired)) {
             return;
         }
@@ -52,14 +53,15 @@ public class OutboxProcessor {
 
             for (OutboxEvent event : pendingEvents) {
                 try {
-                    Map<String, Object> message = objectMapper.readValue(event.getPayload(), new TypeReference<Map<String, Object>>() {});
-                    
+                    Map<String, Object> message = objectMapper.readValue(event.getPayload(),
+                            new TypeReference<Map<String, Object>>() {
+                            });
+
                     rabbitTemplate.convertAndSend(
-                        RabbitMQConfig.EXCHANGE_NAME, 
-                        RabbitMQConfig.ROUTING_KEY, 
-                        message
-                    );
-                    
+                            RabbitMQConfig.EXCHANGE_NAME,
+                            RabbitMQConfig.ROUTING_KEY,
+                            message);
+
                     event.setStatus("PROCESSED");
                     outboxEventRepository.save(event);
                     logger.debug("Successfully published event ID: {}", event.getId());
