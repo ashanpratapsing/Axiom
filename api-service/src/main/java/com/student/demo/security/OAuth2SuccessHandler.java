@@ -58,7 +58,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .secure(true)
                 .path("/")
                 .maxAge(15 * 60)
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .build();
 
         org.springframework.http.ResponseCookie refreshCookie = org.springframework.http.ResponseCookie.from("refresh_token", refreshToken)
@@ -66,7 +66,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .secure(true)
                 .path("/auth/refresh")
                 .maxAge(7 * 24 * 60 * 60)
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, accessCookie.toString());

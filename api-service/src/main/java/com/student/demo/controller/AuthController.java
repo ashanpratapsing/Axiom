@@ -12,6 +12,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.HttpHeaders;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -64,10 +66,14 @@ public class AuthController {
             userService.upgradeLegacyPassword(existingUser, user.getPassword());
         }
 
-        setAuthCookies(response, existingUser);
+        String accessToken = tokenService.generateAccessToken(existingUser);
+        String refreshToken = tokenService.generateRefreshToken(existingUser);
+
+        setAuthCookies(response, accessToken, refreshToken);
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("user", UserDTO.from(existingUser));
+        responseBody.put("accessToken", accessToken);
         return responseBody;
     }
 
@@ -89,9 +95,15 @@ public class AuthController {
         tokenEntity.setRevoked(true);
         refreshTokenRepository.save(tokenEntity);
 
-        setAuthCookies(response, tokenEntity.getUser());
+        String newAccessToken = tokenService.generateAccessToken(tokenEntity.getUser());
+        String newRefreshToken = tokenService.generateRefreshToken(tokenEntity.getUser());
 
-        return Map.of("message", "Token refreshed successfully");
+        setAuthCookies(response, newAccessToken, newRefreshToken);
+
+        return Map.of(
+                "message", "Token refreshed successfully",
+                "accessToken", newAccessToken
+        );
     }
 
     @PostMapping("/logout")
@@ -127,22 +139,25 @@ public class AuthController {
         return details;
     }
 
-    private void setAuthCookies(HttpServletResponse response, User user) {
-        String accessToken = tokenService.generateAccessToken(user);
-        String refreshToken = tokenService.generateRefreshToken(user);
+    private void setAuthCookies(HttpServletResponse response, String accessToken, String refreshToken) {
+        ResponseCookie accessCookie = ResponseCookie.from("access_token", accessToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(15 * 60)
+                .sameSite("Lax")
+                .build();
 
-        Cookie accessCookie = new Cookie("access_token", accessToken);
-        accessCookie.setHttpOnly(true);
-        accessCookie.setPath("/");
-        accessCookie.setMaxAge(15 * 60);
+        ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/auth/refresh")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Lax")
+                .build();
 
-        Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setPath("/auth/refresh");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60);
-
-        response.addCookie(accessCookie);
-        response.addCookie(refreshCookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
     }
 
     private String extractCookie(HttpServletRequest request, String name) {
