@@ -1,6 +1,34 @@
-FROM eclipse-temurin:17-jdk-jammy
+
+# =========================
+# BUILD STAGE
+# =========================
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+
 WORKDIR /app
-RUN apt-get update && apt-get install -y docker.io && rm -rf /var/lib/apt/lists/*
-COPY target/worker-service-1.0.0-SNAPSHOT.jar app.jar
+
+# Copy root pom and module poms
+COPY pom.xml .
+COPY worker-service/pom.xml worker-service/pom.xml
+COPY core-libs/pom.xml core-libs/pom.xml
+
+# Copy source code
+COPY worker-service worker-service
+COPY core-libs core-libs
+
+# Build worker-service jar
+RUN mvn clean package -pl worker-service -am -DskipTests
+
+# =========================
+# RUNTIME STAGE
+# =========================
+FROM eclipse-temurin:17-jre-jammy
+
+WORKDIR /app
+
+# Copy generated jar from build stage
+COPY --from=build /app/worker-service/target/*.jar app.jar
+
 EXPOSE 8089
-CMD ["java", "-jar", "app.jar"]
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
