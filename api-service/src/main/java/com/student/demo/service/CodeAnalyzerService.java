@@ -30,10 +30,10 @@ public class CodeAnalyzerService {
     private final org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
 
     public CodeAnalyzerService(MetricsRepository metricsRepository,
-                               OutboxEventRepository outboxEventRepository,
-                               ObjectMapper objectMapper,
-                               OwnershipService ownershipService,
-                               org.springframework.data.redis.core.StringRedisTemplate redisTemplate) {
+            OutboxEventRepository outboxEventRepository,
+            ObjectMapper objectMapper,
+            OwnershipService ownershipService,
+            org.springframework.data.redis.core.StringRedisTemplate redisTemplate) {
         this.metricsRepository = metricsRepository;
         this.outboxEventRepository = outboxEventRepository;
         this.objectMapper = objectMapper;

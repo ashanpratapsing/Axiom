@@ -12,13 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.context.annotation.Profile;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@Profile("local")
 public class OutboxProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(OutboxProcessor.class);
