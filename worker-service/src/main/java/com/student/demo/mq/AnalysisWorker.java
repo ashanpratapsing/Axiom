@@ -10,7 +10,6 @@ import com.student.demo.service.CodeAnalyzerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,9 +30,6 @@ public class AnalysisWorker {
     private MetricsRepository metricsRepository;
 
     @Autowired
-    private RabbitTemplate rabbitTemplate;
-
-    @Autowired
     private org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
 
     @Autowired
@@ -46,7 +42,7 @@ public class AnalysisWorker {
 
         // 1. Strict Idempotency Check (Redis Lock)
         String lockKey = "lock:analysis:" + fileId;
-        Boolean acquired = redisTemplate.opsForValue().setIfAbsent(lockKey, "LOCKED", java.time.Duration.ofMinutes(10));
+        Boolean acquired = redisTemplate.opsForValue().setIfAbsent(lockKey, "LOCKED", java.util.Objects.requireNonNull(java.time.Duration.ofMinutes(10)));
         
         if (Boolean.FALSE.equals(acquired)) {
             logger.warn("Another worker is already processing fileId {}. Dropping duplicate message.", fileId);
@@ -68,6 +64,11 @@ public class AnalysisWorker {
             }
 
             CodeFile file = codeFileRepository.findById(fileId).orElseThrow();
+            logger.info(
+        "Loaded file from DB. fileId={}, fileName={}",
+        file.getId(),
+        file.getName()
+);
             Metrics metrics = metricsRepository.findByCodeFileId(fileId)
                     .orElse(new Metrics());
 
@@ -79,19 +80,56 @@ public class AnalysisWorker {
             metrics.setStatus(AnalysisStatus.PROCESSING);
             metrics.setRetryCount(retryCount);
             metricsRepository.save(metrics);
+            logger.info(
+        "Metrics updated to PROCESSING for fileId={}",
+        fileId
+);
+
+//             String model = (String) message.getOrDefault("model", "AUTO");
+//             @SuppressWarnings("unchecked")
+//             Map<String, Object> executionContext = (Map<String, Object>) message.get("executionContext");
+//             analyzerService.analyzeCode(file, model, executionContext);
+//             logger.info(
+//         "Starting analyzeCode() for fileId={}, model={}",
+//         fileId,
+//         model
+// );
+        
+//                    logger.info(
+//         "Finished analyzeCode() for fileId={}",
+//         fileId
+// );       
 
             String model = (String) message.getOrDefault("model", "AUTO");
-            @SuppressWarnings("unchecked")
-            Map<String, Object> executionContext = (Map<String, Object>) message.get("executionContext");
-            analyzerService.analyzeCode(file, model, executionContext);
-            
+
+@SuppressWarnings("unchecked")
+Map<String, Object> executionContext =
+        (Map<String, Object>) message.get("executionContext");
+
+logger.info(
+        "Starting analyzeCode() for fileId={}, model={}",
+        fileId,
+        model
+);
+
+analyzerService.analyzeCode(file, model, executionContext);
+
+logger.info(
+        "Finished analyzeCode() for fileId={}",
+        fileId
+); 
+
             logger.info("Successfully processed analysis for fileId: {}", fileId);
             publishEvent(fileId, "COMPLETED");
         } catch (Exception e) {
-            logger.error("Attempt failed for fileId: {}. Error: {}", fileId, e.getMessage());
-            // Throwing this exception tells RabbitMQ to reject the message (requeue=false), routing it to the DLX
+            logger.error(
+                    "FULL STACKTRACE FOR FILE ID {}",
+                    fileId,
+                    e
+            );
             throw new org.springframework.amqp.AmqpRejectAndDontRequeueException(e);
         } finally {
+
             redisTemplate.delete(lockKey);
         }
     }
