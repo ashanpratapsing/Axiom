@@ -46,7 +46,7 @@ public class ExecutionWorker {
     @RabbitListener(queues = RabbitMQConfig.EXECUTION_QUEUE_NAME)
     @Transactional
     public ExecutionResponse receiveExecutionRequest(ExecutionRequest request, @org.springframework.messaging.handler.annotation.Header(name = "x-death", required = false) java.util.List<java.util.Map<String, Object>> xDeath) {
-        logger.info("Received execution job for execution ID: {}, language: {}", request.getExecutionId(), request.getLanguage());
+        logger.debug("Received execution job for execution ID: {}, language: {}", request.getExecutionId(), request.getLanguage());
         
         int retryCount = 0;
         if (xDeath != null && !xDeath.isEmpty()) {
@@ -134,7 +134,7 @@ public class ExecutionWorker {
                         "sh", "-c", compileCmd
                 );
 
-                logger.info("Compiling {} code for job ID: {}", language, execId);
+                logger.debug("Compiling {} code for job ID: {}", language, execId);
 
                 File compileStdout = new File(tempDir.toFile(), "compile_stdout.txt");
                 File compileStderr = new File(tempDir.toFile(), "compile_stderr.txt");
@@ -318,7 +318,7 @@ public class ExecutionWorker {
         execution.getLogs().add(log);
 
         codeExecutionRepository.save(execution);
-        logger.info("Successfully persisted execution results in database for job ID: {}", executionId);
+        logger.debug("Successfully persisted execution results in database for job ID: {}", executionId);
     }
 
     private String findInput(ExecutionRequest request, int caseId) {

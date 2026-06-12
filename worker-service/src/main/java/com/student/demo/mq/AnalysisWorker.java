@@ -42,7 +42,7 @@ public class AnalysisWorker {
     @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
     public void receiveMessage(Map<String, Object> message, @org.springframework.messaging.handler.annotation.Header(name = "x-death", required = false) java.util.List<Map<String, Object>> xDeath) {
         Long fileId = ((Number) message.get("fileId")).longValue();
-        logger.info("Processing analysis task for fileId: {}", fileId);
+        logger.debug("Processing analysis task for fileId: {}", fileId);
 
         // 1. Strict Idempotency Check (Redis Lock)
         String lockKey = "lock:analysis:" + fileId;
@@ -85,7 +85,7 @@ public class AnalysisWorker {
             Map<String, Object> executionContext = (Map<String, Object>) message.get("executionContext");
             analyzerService.analyzeCode(file, model, executionContext);
             
-            logger.info("Successfully processed analysis for fileId: {}", fileId);
+            logger.debug("Successfully processed analysis for fileId: {}", fileId);
             publishEvent(fileId, "COMPLETED");
         } catch (Exception e) {
             logger.error("Attempt failed for fileId: {}. Error: {}", fileId, e.getMessage());

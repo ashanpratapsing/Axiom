@@ -11,9 +11,41 @@
         </encoder>
     </appender>
 
+    <!-- Async Appender: wraps CONSOLE to prevent blocking on I/O under high throughput -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+        <appender-ref ref="CONSOLE" />
+    </appender>
+
+    <!-- Suppress verbose Spring framework loggers -->
+    <logger name="org.springframework" level="WARN" additivity="false">
+        <appender-ref ref="ASYNC_CONSOLE" />
+    </logger>
+    <logger name="org.springframework.amqp" level="WARN" additivity="false">
+        <appender-ref ref="ASYNC_CONSOLE" />
+    </logger>
+    <logger name="org.springframework.data" level="WARN" additivity="false">
+        <appender-ref ref="ASYNC_CONSOLE" />
+    </logger>
+    <logger name="org.springframework.security" level="WARN" additivity="false">
+        <appender-ref ref="ASYNC_CONSOLE" />
+    </logger>
+
+    <!-- Suppress verbose Hibernate/JPA SQL and transaction loggers -->
+    <logger name="org.hibernate" level="WARN" additivity="false">
+        <appender-ref ref="ASYNC_CONSOLE" />
+    </logger>
+
+    <!-- Keep application loggers at INFO -->
+    <logger name="com.student.demo" level="INFO" additivity="false">
+        <appender-ref ref="ASYNC_CONSOLE" />
+    </logger>
+
     <!-- Root Logger -->
     <root level="INFO">
-        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ASYNC_CONSOLE" />
     </root>
 
 </configuration>
