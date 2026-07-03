@@ -21,11 +21,12 @@ export const Projects = () => {
     mutationFn: (id: number) => projectService.deleteProject(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['projects'] }),
   });
-
-  const filteredProjects = projects?.filter(p => 
-    (p.projectName?.toLowerCase() || '').includes(search.toLowerCase()) || 
-    (p.description?.toLowerCase() || '').includes(search.toLowerCase())
-  );
+  const filteredProjects = Array.isArray(projects)
+    ? projects.filter(p => 
+        (p.projectName?.toLowerCase() || '').includes(search.toLowerCase()) || 
+        (p.description?.toLowerCase() || '').includes(search.toLowerCase())
+      )
+    : [];
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProject, setNewProject] = useState({ projectName: '', description: '' });

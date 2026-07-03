@@ -49,8 +49,8 @@ services:
 
   api-service:
     build: 
-      context: ./api-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: api-service/Dockerfile
     container_name: antigravity_api
     ports:
       - "0.0.0.0:8080:8088"
@@ -72,8 +72,8 @@ services:
 
   worker-service:
     build: 
-      context: ./worker-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: worker-service/Dockerfile
     container_name: antigravity_worker
     environment:
       - SPRING_PROFILES_ACTIVE=docker
